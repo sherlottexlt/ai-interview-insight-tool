@@ -56,8 +56,33 @@ def _load_state() -> dict | None:
         return None
 
 
+def _load_demo_data():
+    """加载演示数据 - 支持多种路径"""
+    demo_paths = [
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "demo_data", "analysis_results.json"),
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "analysis_results.json"),
+    ]
+    
+    for demo_file in demo_paths:
+        if os.path.exists(demo_file):
+            try:
+                with open(demo_file, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except Exception as e:
+                print(f"Failed to load demo data from {demo_file}: {e}")
+    
+    return None
+
+
 def init_session_state():
     saved = _load_state()
+    
+    # 优先加载本地状态，如果没有则加载演示数据
+    if not saved:
+        saved = _load_demo_data()
+        if saved:
+            print("Loading demo data...")
+    
     defaults = {
         "results": [],
         "cluster_result": None,
